@@ -7,6 +7,7 @@ var WalletSchema = new Schema({
   ownerId: Schema.Types.ObjectId,
   name: String,
   address: String,
+  ethKeystore: String,
   timestamp: { type: Date, default: Date.now }
 });
 

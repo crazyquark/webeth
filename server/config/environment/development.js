@@ -8,5 +8,5 @@ module.exports = {
     uri: 'mongodb://localhost/webeth-dev'
   },
 
-  seedDB: true
+  seedDB: false
 };
