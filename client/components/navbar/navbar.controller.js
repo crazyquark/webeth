@@ -9,6 +9,10 @@ angular.module('webethApp')
     {
       'title': 'Contracts',
       'link': '/contracts'
+    },
+    {
+      'title': 'Accounts',
+      'link': '/wallets'
     }];
 
     $scope.isCollapsed = true;
