@@ -5,6 +5,10 @@ angular.module('webethApp')
     $scope.menu = [{
       'title': 'Home',
       'link': '/'
+    },
+    {
+      'title': 'Contracts',
+      'link': '/contracts'
     }];
 
     $scope.isCollapsed = true;
