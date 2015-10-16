@@ -6,7 +6,7 @@
       <h3 id="panel-title" class="panel-title">Upload Contract</h3>
     </div>
     <div class="panel-body">
-      <h4>Upload Contract Source</h4>
+      <h4>Upload file</h4>
       <button type="file" ngf-select="uploadFiles($file, $invalidFiles)" accept="*/*" ngf-max-height="1000" ngf-max-size="1MB">
         Select File</button>
       <br>
@@ -24,7 +24,7 @@
       <h3 id="panel-title" class="panel-title">Compiled Contract</h3>
     </div>
     <div class="panel-body">
-      {{compiledCode}}
+      <textarea ng-readonly="true" wrap="soft" class="form-control" style="min-width: 100%" rows="20">{{compiledCode | json}}</textarea>
     </div>
   </div>
 </div>
