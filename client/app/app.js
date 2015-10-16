@@ -7,7 +7,6 @@ angular.module('webethApp', [
   'ngRoute',
   'btford.socket-io',
   'ui.bootstrap',
-  'ngAnimate',
   'ngFileUpload'
 ])
   .config(function ($routeProvider, $locationProvider, $httpProvider) {
