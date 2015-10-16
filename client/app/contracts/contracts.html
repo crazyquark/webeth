@@ -3,9 +3,20 @@
 <div class="container">
   <div class="panel panel-success">
     <div class="panel-heading">
-      <h3 id="panel-title" class="panel-title">Ethereum Contracts</h3>
+      <h3 id="panel-title" class="panel-title">Upload Contract</h3>
     </div>
     <div class="panel-body">
+      <h4>Upload contract source</h4>
+      <button type="file" ngf-select="uploadFiles($file, $invalidFiles)" accept="*/*" ngf-max-height="1000" ngf-max-size="1MB">
+        Select File</button>
+      <br>
+      <br>
+      <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
+        <span class="progress" ng-show="f.progress >= 0">
+          <div style="width:{{f.progress}}%"  
+               ng-bind="f.progress + '%'"></div>
+      </span> {{errorMsg}}
+      </div>
     </div>
   </div>
 </div>
