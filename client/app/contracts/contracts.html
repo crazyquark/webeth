@@ -9,8 +9,8 @@
       <h4>Upload file</h4>
       <button type="file" ngf-select="uploadFiles($file, $invalidFiles)" accept="*/*" ngf-max-height="1000" ngf-max-size="1MB">
         Select File</button>
-      <br>
-      <br>
+      <br/>
+      <br/>
       <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
         <span class="progress" ng-show="f.progress >= 0">
           <!--<div style="width:{{f.progress}}%"  
@@ -26,6 +26,11 @@
     </div>
     <div class="panel-body">
       <textarea ng-readonly="true" wrap="soft" class="form-control" style="min-width: 100%" rows="20">{{compiledCode | json}}</textarea>
+      <br/>
+      <br/>
+      <button ng-click="createContract()">
+        Create Contract
+      </button>
     </div>
   </div>
 </div>
