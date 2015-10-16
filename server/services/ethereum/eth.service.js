@@ -16,11 +16,13 @@ var EthService = {
 		var contractName = fileData.originalname;
 		var sourceFile = path.normalize(__dirname + '/../../../' + fileData.path);
 
-		var greeterSource = 'contract mortal { address owner; function mortal() { owner = msg.sender; } function kill() { if (msg.sender == owner) suicide(owner); } } contract greeter is mortal { string greeting; function greeter(string _greeting) public { greeting = _greeting; } function greet() constant returns (string) { return greeting; } }';
-		
-		var compiled = web3.eth.compile.solidity(greeterSource);
+		fs.readFile(sourceFile, 'utf8', function (err, data) {
+			if (err) throw err;
+			debug('file: ' + data);
+				var compiled = web3.eth.compile.solidity(data);
+				debug(compiled);
+		});
 
-		debug(compiled);
 		debug(contractName);
 		debug(sourceFile);
 	}
