@@ -5,20 +5,12 @@
 'use strict';
 
 var Contract = require('./contract.model');
+var EthService = require('../../services/ethereum/eth.service');
 
 exports.register = function(socket) {
-  Contract.schema.post('save', function (doc) {
-    onSave(socket, doc);
+  socket.on('create_contract', function(compiledCode) {
+    EthService.createContract(compiledCode, function() {
+      socket.emit('post:create_contract', {status: 'success'});
+    });
   });
-  Contract.schema.post('remove', function (doc) {
-    onRemove(socket, doc);
-  });
-}
-
-function onSave(socket, doc, cb) {
-  socket.emit('contract:save', doc);
-}
-
-function onRemove(socket, doc, cb) {
-  socket.emit('contract:remove', doc);
 }

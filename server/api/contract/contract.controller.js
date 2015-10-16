@@ -3,7 +3,7 @@
 var _ = require('lodash');
 
 var Contract = require('./contract.model');
-var EthService = require('../../services/ethereum/eth.service')
+var EthService = require('../../services/ethereum/eth.service');
 
 // Upload a contract source code
 exports.upload = function(req, res) {

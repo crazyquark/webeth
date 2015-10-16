@@ -33,5 +33,11 @@ angular.module('webethApp')
             if (!$scope.compiledCode) {
                 return;
             }
+            
+            socket.socket.on('post:create_contract', function(data) {
+               console.log('done: ' + data); 
+            });
+            
+            socket.socket.emit('create_contract', $scope.compiledCode);
         }
     });
