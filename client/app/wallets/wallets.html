@@ -6,7 +6,7 @@
       <h3 id="panel-title" class="panel-title">Ethereum Accounts</h3>
     </div>
     <div class="panel-body">
-		<table class="table" ng-show="wallets()">
+		<table class="table" ng-show="wallets">
 		  <thead>
         <tr>
           <th>Name</th>
@@ -16,7 +16,7 @@
         </tr>
 		  </thead>
       <tbody>
-        <tr ng-repeat="wallet in wallets()">
+        <tr ng-repeat="wallet in wallets">
           <td>{{wallet.name}}</td>
           <td>{{wallet.address}}</td>
           <td>{{wallet.timestamp}}</td>

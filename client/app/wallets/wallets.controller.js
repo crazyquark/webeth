@@ -1,11 +1,10 @@
 'use strict';
 
 angular.module('webethApp')
-  .controller('WalletsCtrl', function ($scope) {
+  .controller('WalletsCtrl', function ($scope, Auth) {
     $scope.message = 'Hello';
     
-    $scope.wallets = function() {
-      return [{
+    $scope.wallets = [{
         name: 'account A',
         address: '0xadadfsaadadada',
         timestamp: '05-10-2015',
@@ -17,5 +16,4 @@ angular.module('webethApp')
         timestamp: '05-11-2015',
         balance: '113.21'
         }]
-    }
   });
