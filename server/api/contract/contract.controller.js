@@ -1,12 +1,13 @@
 'use strict';
 
 var _ = require('lodash');
+
 var Contract = require('./contract.model');
-var debug = require('debug')('Contracts')
+var EthService = require('../../services/ethereum/eth.service')
 
 // Upload a contract source code
 exports.upload = function(req, res) {
-  debug(req);
+  EthService.processContractSource(req.file);  
 }
 
 // Get list of contracts
