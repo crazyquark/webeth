@@ -42,8 +42,8 @@ var EthService = {
 				return;
 				// callback fires twice, we only want the second call when the contract is deployed
 			} else if (contract.address) {
-				$scope.contract = contract;
-				console.log('address: ' + $scope.contract.address);
+				//$scope.contract = contract;
+				//console.log('address: ' + $scope.contract.address);
 				// document.getElementById('status').innerText = 'Mined!';
 				// document.getElementById('call').style.visibility = 'visible';
 			}
