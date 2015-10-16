@@ -2,7 +2,7 @@
 
 angular.module('webethApp')
   .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [];
+    // $scope.awesomeThings = [];
 
     // $http.get('/api/things').success(function(awesomeThings) {
     //   $scope.awesomeThings = awesomeThings;

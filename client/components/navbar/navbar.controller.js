@@ -4,18 +4,15 @@ angular.module('webethApp')
   .controller('NavbarCtrl', function ($scope, $location, Auth) {
     $scope.menu = [{
       'title': 'Home',
-      'link': '/',
-      'show': true
+      'link': '/'
     },
     {
       'title': 'Contracts',
-      'link': '/contracts',
-      'show': Auth.isLoggedIn()
+      'link': '/contracts'
     },
     {
       'title': 'Accounts',
-      'link': '/wallets',
-      'show': Auth.isLoggedIn()
+      'link': '/wallets'
     }];
 
     $scope.isCollapsed = true;
