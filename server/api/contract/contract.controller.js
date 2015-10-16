@@ -7,7 +7,9 @@ var EthService = require('../../services/ethereum/eth.service')
 
 // Upload a contract source code
 exports.upload = function(req, res) {
-  EthService.processContractSource(req.file);  
+  EthService.processContractSource(req.file, function(compiledCode) {
+    res.json(compiledCode);
+  });  
 }
 
 // Get list of contracts

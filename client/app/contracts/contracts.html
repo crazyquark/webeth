@@ -6,7 +6,7 @@
       <h3 id="panel-title" class="panel-title">Upload Contract</h3>
     </div>
     <div class="panel-body">
-      <h4>Upload contract source</h4>
+      <h4>Upload Contract Source</h4>
       <button type="file" ngf-select="uploadFiles($file, $invalidFiles)" accept="*/*" ngf-max-height="1000" ngf-max-size="1MB">
         Select File</button>
       <br>
@@ -19,4 +19,13 @@
       </div>
     </div>
   </div>
+  <div class="panel panel-success" ng-show="compiledCode">
+    <div class="panel-heading">
+      <h3 id="panel-title" class="panel-title">Compiled Contract</h3>
+    </div>
+    <div class="panel-body">
+      {{compiledCode}}
+    </div>
+  </div>
+</div>
 </div>

@@ -10,7 +10,7 @@ function initWeb3() {
 }
 
 var EthService = {
-	processContractSource: function (fileData) {
+	processContractSource: function (fileData, callback) {
 		//{ fieldname: 'file', originalname: 'robots.txt', encoding: '7bit', mimetype: 'text/plain', destination: 'uploads/', 
 		//filename: 'da96e132f4f5050f7a37658d48b9f4dd', path: 'uploads/da96e132f4f5050f7a37658d48b9f4dd', size: 31 }
 		var contractName = fileData.originalname;
@@ -21,6 +21,12 @@ var EthService = {
 			debug('file: ' + data);
 				var compiled = web3.eth.compile.solidity(data);
 				debug(compiled);
+				
+				if (callback) {
+					callback(compiled);
+				}
+				
+				fs.unlink(sourceFile);
 		});
 
 		debug(contractName);
