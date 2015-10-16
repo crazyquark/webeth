@@ -2,6 +2,12 @@
 
 var _ = require('lodash');
 var Contract = require('./contract.model');
+var debug = require('debug')('Contracts')
+
+// Upload a contract source code
+exports.upload = function(req, res) {
+  debug(req);
+}
 
 // Get list of contracts
 exports.index = function(req, res) {

@@ -7,7 +7,7 @@ angular.module('webethApp')
         $scope.errFile = errFiles && errFiles[0];
         if (file) {
             file.upload = Upload.upload({
-                url: 'upload/url',
+                url: 'api/contracts',
                 data: {file: file}
             });
 
