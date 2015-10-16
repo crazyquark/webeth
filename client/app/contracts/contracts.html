@@ -13,9 +13,10 @@
       <br>
       <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
         <span class="progress" ng-show="f.progress >= 0">
-          <div style="width:{{f.progress}}%"  
-               ng-bind="f.progress + '%'"></div>
-      </span> {{errorMsg}}
+          <!--<div style="width:{{f.progress}}%"  
+               ng-bind="f.progress + '%'"></div>-->
+          <progressbar class="progress-striped active" value="f.progress">{{f.progress}}%</progressbar>
+        </span>{{errorMsg}}
       </div>
     </div>
   </div>
