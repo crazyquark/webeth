@@ -5,8 +5,9 @@ var mongoose = require('mongoose'),
 
 var ContractInstanceSchema = new Schema({
   address: String,
-  transactionAddress: String,
-  contractSource: Schema.Types.ObjectId
+  transactionHash: String,
+  contractId: Schema.Types.ObjectId,
+  timestamp: {type: Date, default: Date.now}
 });
 
 module.exports = mongoose.model('ContractInstance', ContractInstanceSchema);

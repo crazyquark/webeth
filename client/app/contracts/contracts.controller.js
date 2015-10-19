@@ -38,9 +38,14 @@ angular.module('webethApp')
         $scope.createContract = function (contractId) {
             socket.socket.on('post:create_contract', function (data) {
                 console.log('done: ' + data);
+                if (data.success) {
+                    swal("Great!", "Your contract is on the blockchain at address: " + data.success.address + "!", "success");
+                } else {
+                    swal("Ooops!", "Something went wrong: " + data.failure + "!", "error");
+                }
             });
 
-            socket.socket.emit('create_contract', $scope.newContracts);
+            socket.socket.emit('create_contract', contractId);
         }
 
         function listContracts() {
