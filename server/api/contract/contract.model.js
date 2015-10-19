@@ -1,12 +1,15 @@
 'use strict';
 
-var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+var mongoose = require('mongoose-q')(require('mongoose'));
+var Schema = mongoose.Schema;
+var Q = require('q');
 
 var ContractSchema = new Schema({
-  name: String,
-  info: String,
-  active: Boolean
+    name: String,
+    compiled: String,
+    abi: String,
+    code: String,
+    source: String
 });
 
 module.exports = mongoose.model('Contract', ContractSchema);
