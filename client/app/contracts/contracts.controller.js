@@ -6,8 +6,8 @@ angular.module('webethApp')
             $scope.f = file;
             $scope.errFile = errFiles && errFiles[0];
 
-            if ($scope.compiledCode) {
-                delete $scope.compiledCode;
+            if ($scope.newContracts) {
+                delete $scope.newContracts;
             }
 
             if (file) {
@@ -18,7 +18,7 @@ angular.module('webethApp')
 
                 file.upload.then(function (response) {
                     $timeout(function () {
-                        $scope.compiledCode = response.data;
+                        $scope.newContracts = response.data;
                     });
                 }, function (response) {
                     if (response.status > 0)
@@ -29,15 +29,15 @@ angular.module('webethApp')
             }
         }
 
-        $scope.createContract = function () {
-            if (!$scope.compiledCode) {
+        $scope.createContract = function (contractId) {
+            if (!$scope.newContracts) {
                 return;
             }
-            
-            socket.socket.on('post:create_contract', function(data) {
-               console.log('done: ' + data); 
+
+            socket.socket.on('post:create_contract', function (data) {
+                console.log('done: ' + data);
             });
-            
-            socket.socket.emit('create_contract', $scope.compiledCode);
+
+            socket.socket.emit('create_contract', contractId);
         }
     });

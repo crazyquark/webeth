@@ -20,18 +20,34 @@
       </div>
     </div>
   </div>
-  <div class="panel panel-success" ng-show="compiledCode">
+  <div class="panel panel-success">
     <div class="panel-heading">
       <h3 id="panel-title" class="panel-title">Compiled Contract</h3>
     </div>
     <div class="panel-body">
-      <textarea ng-readonly="true" wrap="soft" class="form-control" style="min-width: 100%" rows="20">{{compiledCode | json}}</textarea>
+      <!--<textarea ng-readonly="true" wrap="soft" class="form-control" style="min-width: 100%" rows="20">{{compiledCode | json}}</textarea>-->
+      <table class="table" ng-show="newContracts">
+        <thead>
+          <th>ID</th>
+          <th>Name</th>
+          <th>ABI</th>
+          <th>Create</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="contract in newContracts">
+            <td>{{contract.id}}</td>
+            <td>{{contract.name}}</td>
+            <td>{{contract.abi}}</td>
+            <td>
+              <button ng-click="createContract(contract.id)">
+                Create Contract
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <br/>
       <br/>
-      <button ng-click="createContract()">
-        Create Contract
-      </button>
     </div>
   </div>
-</div>
 </div>

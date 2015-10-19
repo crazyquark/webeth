@@ -27,7 +27,17 @@ exports.upload = function (req, res) {
     }
 
     Q.allSettled(contractPromises).then(function (contracts) {
-      res.json(contracts);
+      var contractValues = [];
+      for (var key in contracts) {
+        var contractSettled = contracts[key];
+        contractValues.push({
+          id: contractSettled.value._id,
+          name: contractSettled.value.name,
+          abi: contractSettled.value.abi
+        });
+      }
+      
+      res.json(contractValues);
     },
     function(err) {
       handleError(res, err);
