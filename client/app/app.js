@@ -7,8 +7,12 @@ angular.module('webethApp', [
   'ngRoute',
   'btford.socket-io',
   'ui.bootstrap',
+  'angularSpinner',
   'ngFileUpload'
 ])
+  .config(['usSpinnerConfigProvider', function (usSpinnerConfigProvider) {
+    usSpinnerConfigProvider.setDefaults({color: '#337AB7'});
+  }])
   .config(function ($routeProvider, $locationProvider, $httpProvider) {
     $routeProvider
       .otherwise({

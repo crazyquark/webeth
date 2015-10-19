@@ -1,12 +1,12 @@
 'use strict';
 
 angular.module('webethApp')
-    .controller('ContractsCtrl', function ($scope, socket, Upload, $timeout) {
+    .controller('ContractsCtrl', function ($scope, socket, Upload, $timeout, usSpinnerService) {
         if ($scope.contracts) {
             delete $scope.contracts;
         }
         listContracts();
-
+        
         $scope.uploadFiles = function (file, errFiles) {
             $scope.f = file;
             $scope.errFile = errFiles && errFiles[0];
@@ -36,6 +36,7 @@ angular.module('webethApp')
         }
 
         $scope.createContract = function (contractId) {
+            usSpinnerService.spin('contract-spin');
             socket.socket.on('post:create_contract', function (data) {
                 console.log('done: ' + data);
                 if (data.success) {
@@ -43,6 +44,7 @@ angular.module('webethApp')
                 } else {
                     swal("Ooops!", "Something went wrong: " + data.failure + "!", "error");
                 }
+                usSpinnerService.stop('contract-spin');
             });
 
             socket.socket.emit('create_contract', contractId);
