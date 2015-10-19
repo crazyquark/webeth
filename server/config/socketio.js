@@ -18,6 +18,7 @@ function onConnect(socket) {
   });
 
   // Insert sockets below
+  require('../api/contractInstance/contractInstance.socket').register(socket);
   require('../api/wallet/wallet.socket').register(socket);
   require('../api/contract/contract.socket').register(socket);
 }

@@ -2,6 +2,11 @@
 
 angular.module('webethApp')
     .controller('ContractsCtrl', function ($scope, socket, Upload, $timeout) {
+        if ($scope.contracts) {
+            delete $scope.contracts;
+        }
+        listContracts();
+
         $scope.uploadFiles = function (file, errFiles) {
             $scope.f = file;
             $scope.errFile = errFiles && errFiles[0];
@@ -19,6 +24,7 @@ angular.module('webethApp')
                 file.upload.then(function (response) {
                     $timeout(function () {
                         $scope.newContracts = response.data;
+                        listContracts();
                     });
                 }, function (response) {
                     if (response.status > 0)
@@ -30,14 +36,20 @@ angular.module('webethApp')
         }
 
         $scope.createContract = function (contractId) {
-            if (!$scope.newContracts) {
-                return;
-            }
-
             socket.socket.on('post:create_contract', function (data) {
                 console.log('done: ' + data);
             });
 
-            socket.socket.emit('create_contract', contractId);
+            socket.socket.emit('create_contract', $scope.newContracts);
+        }
+
+        function listContracts() {
+            socket.socket.on('post:get_contracts', function (data) {
+                if (data.contracts.length > 0) {
+                    $scope.contracts = data.contracts;
+                }
+            });
+
+            socket.socket.emit('get_contracts');
         }
     });

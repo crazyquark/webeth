@@ -1,3 +1,4 @@
+
 <div ng-include="'components/navbar/navbar.html'"></div>
 
 <div class="container">
@@ -20,13 +21,13 @@
       </div>
     </div>
   </div>
-  <div class="panel panel-success">
+  <div class="panel panel-success" ng-show="newContracts">
     <div class="panel-heading">
-      <h3 id="panel-title" class="panel-title">Compiled Contract</h3>
+      <h3 id="panel-title" class="panel-title">Recently uploaded</h3>
     </div>
     <div class="panel-body">
       <!--<textarea ng-readonly="true" wrap="soft" class="form-control" style="min-width: 100%" rows="20">{{compiledCode | json}}</textarea>-->
-      <table class="table" ng-show="newContracts">
+      <table class="table">
         <thead>
           <th>ID</th>
           <th>Name</th>
@@ -36,6 +37,35 @@
         <tbody>
           <tr ng-repeat="contract in newContracts">
             <td>{{contract.id}}</td>
+            <td>{{contract.name}}</td>
+            <td>{{contract.abi}}</td>
+            <td>
+              <button ng-click="createContract(contract.id)">
+                Create Contract
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <br/>
+      <br/>
+    </div>
+  </div>
+  <div class="panel panel-info" ng-show="contracts">
+    <div class="panel-heading">
+      <h3 id="panel-title" class="panel-title">Uploaded contracts</h3>
+    </div>
+    <div class="panel-body">
+      <table class="table">
+        <thead>
+          <th>ID</th>
+          <th>Name</th>
+          <th>ABI</th>
+          <th>Create</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="contract in contracts">
+            <td>{{contract._id}}</td>
             <td>{{contract.name}}</td>
             <td>{{contract.abi}}</td>
             <td>

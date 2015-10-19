@@ -13,4 +13,10 @@ exports.register = function(socket) {
       socket.emit('post:create_contract', {status: 'success'});
     });
   });
+  
+  socket.on('get_contracts', function() {
+    return Contract.findQ().then(function(contracts) {
+      socket.emit('post:get_contracts', {contracts: contracts});
+    });
+  });
 }

@@ -82,7 +82,7 @@ var EthService = {
 				callback(err);
 			}
 		}
-	}
+	},
 };
 
 initWeb3();
