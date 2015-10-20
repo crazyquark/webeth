@@ -31,7 +31,8 @@ var EthService = {
 		var accountsData = [];
 		for (var key in accounts) {
 			var account = accounts[key];
-			accountsData.push({address: account, balance: web3.fromWei(web3.eth.getBalance(account), 'ether')});
+			var base = web3.eth.coinbase;
+			accountsData.push({address: account, balance: web3.fromWei(web3.eth.getBalance(account), 'ether'), isBase: account === base});
 		}
 		
 		callback(accountsData);
@@ -84,7 +85,7 @@ var EthService = {
 						if (err) {
 							console.error(err);
 							if (callback) {
-								callback({failure: err});
+								callback({failure: err.message});
 							}
 							return;
 							// callback fires twice, we only want the second call when the contract is deployed

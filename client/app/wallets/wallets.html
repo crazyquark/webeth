@@ -6,20 +6,23 @@
       <h3 id="panel-title" class="panel-title">Ethereum Accounts</h3>
     </div>
     <div class="panel-body">
-		<table class="table" ng-show="wallets">
-		  <thead>
-        <tr>
-          <th>Address</th>
-          <th>Ether Balance</th>                              
-        </tr>
-		  </thead>
-      <tbody>
-        <tr ng-repeat="wallet in wallets">
-          <td>{{wallet.address}}</td>
-          <td>{{wallet.balance}}</td>                              
-        </tr>
-      </tbody>
-    </table>
+      <table class="table" ng-show="wallets">
+        <thead>
+          <tr>
+            <th>Address</th>
+            <th>Ether Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="wallet in wallets">
+            <td>
+              <b ng-show="wallet.isBase">{{wallet.address}} (coinbase)</b>
+              <span ng-show="!wallet.isBase">{{wallet.address}}</span>
+            </td>
+            <td>{{wallet.balance}}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
