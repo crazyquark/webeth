@@ -7,6 +7,8 @@ angular.module('webethApp')
         }
         listContracts();
         
+        $scope.disableButtons = false;
+      
         $scope.uploadFiles = function (file, errFiles) {
             $scope.f = file;
             $scope.errFile = errFiles && errFiles[0];
@@ -37,6 +39,7 @@ angular.module('webethApp')
 
         $scope.createContract = function (contractId) {
             usSpinnerService.spin('contract-spin');
+            $scope.disableButtons = true;
             socket.socket.on('post:create_contract', function (data) {
                 console.log('done: ' + data);
                 if (data.success) {
@@ -45,6 +48,7 @@ angular.module('webethApp')
                     swal("Ooops!", "Something went wrong: " + data.failure + "!", "error");
                 }
                 usSpinnerService.stop('contract-spin');
+                $scope.disableButtons = false;
             });
 
             socket.socket.emit('create_contract', contractId);

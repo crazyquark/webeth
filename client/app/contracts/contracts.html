@@ -8,7 +8,7 @@
     </div>
     <div class="panel-body">
       <h4>Upload file</h4>
-      <button type="file" ngf-select="uploadFiles($file, $invalidFiles)" accept="*/*" ngf-max-height="1000" ngf-max-size="1MB">
+      <button type="file" ngf-select="uploadFiles($file, $invalidFiles)" accept="*/*" ngf-max-height="1000" ngf-max-size="1MB" ng-disabled="disableButtons">
         Select File</button>
       <br/>
       <br/>
@@ -40,7 +40,7 @@
             <td>{{contract.name}}</td>
             <td>{{contract.abi}}</td>
             <td>
-              <button ng-click="createContract(contract.id)">
+              <button ng-click="createContract(contract.id)" ng-disabled="disableButtons">
                 Create Contract
               </button>
             </td>
@@ -70,7 +70,7 @@
             <td>{{contract.name}}</td>
             <td>{{contract.abi}}</td>
             <td>
-              <button ng-click="createContract(contract._id)">
+              <button ng-click="createContract(contract._id)" ng-disabled="disableButtons">
                 Create Contract
               </button>
             </td>
