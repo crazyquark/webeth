@@ -104,7 +104,7 @@ var EthService = {
 			} catch (err) {
 				debug(err);
 				if (callback) {
-					callback({failure: err});
+					callback({failure: err.message});
 				}
 			}
 		}, function (err) {
