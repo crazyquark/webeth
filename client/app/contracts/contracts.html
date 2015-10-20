@@ -21,37 +21,6 @@
       </div>
     </div>
   </div>
-  <!--<div class="panel panel-success" ng-show="newContracts">
-    <div class="panel-heading">
-      <h3 id="panel-title" class="panel-title">Recently Uploaded</h3>
-    </div>
-    <div class="panel-body">
-      <table class="table">
-        <thead>
-          <th>ID</th>
-          <th>Name</th>
-          <th>ABI</th>
-          <th>Instances</th>
-          <th>Create</th>
-        </thead>
-        <tbody>
-          <tr ng-repeat="contract in newContracts">
-            <td>{{contract.id}}</td>
-            <td>{{contract.name}}</td>
-            <td>{{contract.abi}}</td>
-            <td><a href="/instances?id={{contract.id}}">Instances</a></td>
-            <td>
-              <button ng-click="createContract(contract.id)" ng-disabled="disableButtons">
-                Create Contract
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <br/>
-      <br/>
-    </div>
-  </div>-->
   <span us-spinner spinner-key="contract-spin"></span>
   <div class="panel panel-info" ng-show="contracts">
     <div class="panel-heading">
