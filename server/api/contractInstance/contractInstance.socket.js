@@ -5,20 +5,14 @@
 'use strict';
 
 var ContractInstance = require('./contractInstance.model');
+var mongoose = require('mongoose');
 
 exports.register = function(socket) {
-  ContractInstance.schema.post('save', function (doc) {
-    onSave(socket, doc);
+  socket.on('list_instances', function (contractId) {
+    ContractInstance.findQ({contractId: mongoose.Types.ObjectId(contractId)}).then(function (instances) {
+      socket.emit('post:list_instances', instances);
+    }, function (err) {
+      socket.emit('post:list_instances', false);
+    });
   });
-  ContractInstance.schema.post('remove', function (doc) {
-    onRemove(socket, doc);
-  });
-}
-
-function onSave(socket, doc, cb) {
-  socket.emit('contractInstance:save', doc);
-}
-
-function onRemove(socket, doc, cb) {
-  socket.emit('contractInstance:remove', doc);
 }
