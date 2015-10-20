@@ -13,9 +13,9 @@ angular.module('webethApp')
             $scope.f = file;
             $scope.errFile = errFiles && errFiles[0];
 
-            if ($scope.newContracts) {
-                delete $scope.newContracts;
-            }
+            // if ($scope.newContracts) {
+            //     delete $scope.newContracts;
+            // }
 
             if (file) {
                 file.upload = Upload.upload({
@@ -25,7 +25,7 @@ angular.module('webethApp')
 
                 file.upload.then(function (response) {
                     $timeout(function () {
-                        $scope.newContracts = response.data;
+                        // $scope.newContracts = response.data;
                         listContracts();
                     });
                 }, function (response) {

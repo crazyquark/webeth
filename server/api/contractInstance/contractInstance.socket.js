@@ -5,14 +5,21 @@
 'use strict';
 
 var ContractInstance = require('./contractInstance.model');
+var Contract = require('../contract/contract.model');
 var mongoose = require('mongoose');
+var Q = require('q');
 
 exports.register = function(socket) {
   socket.on('list_instances', function (contractId) {
-    ContractInstance.findQ({contractId: mongoose.Types.ObjectId(contractId)}).then(function (instances) {
-      socket.emit('post:list_instances', instances);
-    }, function (err) {
-      socket.emit('post:list_instances', false);
+    
+    var contractPromise   = Contract.findOneQ({_id: mongoose.Types.ObjectId(contractId)});
+    var instancesPromise  = ContractInstance.findQ({contractId: mongoose.Types.ObjectId(contractId)});
+    
+    Q.allSettled([contractPromise, instancesPromise]).then( function(results) {
+      var contract = results[0].value;
+      var instances = results[1].value;
+      
+      socket.emit('post:list_instances', {instances: instances, abi: contract.abi, contractName: contract.name});
     });
   });
 }

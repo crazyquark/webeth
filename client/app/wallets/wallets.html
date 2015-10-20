@@ -9,17 +9,13 @@
 		<table class="table" ng-show="wallets">
 		  <thead>
         <tr>
-          <th>Name</th>
           <th>Address</th>
-          <th>Creation Date</th>
           <th>Ether Balance</th>                              
         </tr>
 		  </thead>
       <tbody>
         <tr ng-repeat="wallet in wallets">
-          <td>{{wallet.name}}</td>
           <td>{{wallet.address}}</td>
-          <td>{{wallet.timestamp}}</td>
           <td>{{wallet.balance}}</td>                              
         </tr>
       </tbody>
