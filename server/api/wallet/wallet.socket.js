@@ -4,21 +4,12 @@
 
 'use strict';
 
-var Wallet = require('./wallet.model');
+var EthService = require('../../services/ethereum/eth.service');
 
-exports.register = function(socket) {
-  Wallet.schema.post('save', function (doc) {
-    onSave(socket, doc);
-  });
-  Wallet.schema.post('remove', function (doc) {
-    onRemove(socket, doc);
-  });
-}
-
-function onSave(socket, doc, cb) {
-  socket.emit('wallet:save', doc);
-}
-
-function onRemove(socket, doc, cb) {
-  socket.emit('wallet:remove', doc);
+exports.register = function (socket) {
+	socket.on('list_wallets', function () {
+		EthService.listAccounts(function (accounts) {
+			socket.emit('post:list_wallets', accounts);
+		});
+	});
 }

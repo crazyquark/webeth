@@ -24,6 +24,19 @@ function prepareForTransaction(acc, secret) {
 }
 
 var EthService = {
+	listAccounts: function (callback) {
+		callback = callback || function(result) {};
+		
+		var accounts = web3.eth.accounts;
+		var accountsData = [];
+		for (var key in accounts) {
+			var account = accounts[key];
+			accountsData.push({address: account, balance: web3.fromWei(web3.eth.getBalance(account), 'ether')});
+		}
+		
+		callback(accountsData);
+	},
+	
 	processContractSource: function (fileData, callback) {
 		//{ fieldname: 'file', originalname: 'robots.txt', encoding: '7bit', mimetype: 'text/plain', destination: 'uploads/', 
 		//filename: 'da96e132f4f5050f7a37658d48b9f4dd', path: 'uploads/da96e132f4f5050f7a37658d48b9f4dd', size: 31 }
@@ -46,6 +59,7 @@ var EthService = {
 		debug(contractName);
 		debug(sourceFile);
 	},
+	
 	createContract: function (contractId, callback, params) {
 
 		if (!params) {
