@@ -13,7 +13,7 @@ exports.register = function(socket) {
       socket.emit('post:create_contract', response);
     },
     function(err) {
-      socket.emit('post:create_contract', err);
+      socket.emit('error:create_contract', err);
     });
   });
   
