@@ -8,7 +8,7 @@ angular.module('webethApp', [
   'btford.socket-io',
   'ui.bootstrap',
   'angularSpinner',
-  'ngFileUpload'
+  'angularFileUpload'
 ])
   .config(['usSpinnerConfigProvider', function (usSpinnerConfigProvider) {
     usSpinnerConfigProvider.setDefaults({color: '#337AB7'});

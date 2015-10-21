@@ -4,23 +4,43 @@
 
 'use strict';
 
+var ss = require('socket.io-stream');
+
 var Contract = require('./contract.model');
 var EthService = require('../../services/ethereum/eth.service');
 
-exports.register = function(socket) {
-  socket.on('create_contract', function(contractId) {
-    EthService.createContract(contractId).then(function(response) {
+exports.register = function (socket) {
+  socket.on('create_contract', function (contractId) {
+    EthService.createContract(contractId).then(function (response) {
       socket.emit('post:create_contract', response);
     },
-    function(err) {
-      socket.emit('error:create_contract', err);
+      function (err) {
+        socket.emit('error:create_contract', err);
+      });
+  });
+
+  socket.on('get_contracts', function () {
+    return Contract.findQ().then(function (contracts) {
+      socket.emit('post:get_contracts', { contracts: contracts });
     });
   });
-  
-  socket.on('get_contracts', function() {
-    return Contract.findQ().then(function(contracts) {
-      socket.emit('post:get_contracts', {contracts: contracts});
+
+  ss(socket).on('stream', function (stream, metadata) {
+    console.info('Got Stream with metadata: ', metadata);
+    var itemHash = metadata.hash;
+    var size = 0;
+    var progress = 0;
+    stream.on('data', function (chunk) {
+      size += chunk.length;
+      progress = Math.floor(size / metadata.size * 100);
+      socket.emit('progress', { itemKey: itemHash, tx: progress });
+
     });
+
+    stream.on('end', function () {
+      console.log('File uploaded successfully');
+      socket.emit('upload-done', { itemKey: itemHash });
+    })
   });
 }
 

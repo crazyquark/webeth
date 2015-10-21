@@ -1,36 +1,16 @@
 'use strict';
 
 angular.module('webethApp')
-    .controller('ContractsCtrl', function ($scope, socket, Upload, $timeout, usSpinnerService) {
+    .controller('ContractsCtrl', function ($scope, socket, uploaderService, $timeout, usSpinnerService) {
         if ($scope.contracts) {
             delete $scope.contracts;
         }
         listContracts();
         
         $scope.disableButtons = false;
-      
-        $scope.uploadFiles = function (file, errFiles) {
-            $scope.f = file;
-            $scope.errFile = errFiles && errFiles[0];
-
-            if (file) {
-                file.upload = Upload.upload({
-                    url: 'api/contracts',
-                    data: { file: file }
-                });
-
-                file.upload.then(function (response) {
-                    $timeout(function () {
-                        listContracts();
-                    });
-                }, function (response) {
-                    if (response.status > 0)
-                        $scope.errorMsg = response.status + ': ' + response.data;
-                }, function (evt) {
-                    file.progress = Math.min(100, 100 * evt.loaded / evt.total);
-                });
-            }
-        }
+        
+        $scope.uploader = uploaderService;
+        $scope.uploader.autoUpload = true;
 
         $scope.createContract = function (contractId) {
             usSpinnerService.spin('contract-spin');

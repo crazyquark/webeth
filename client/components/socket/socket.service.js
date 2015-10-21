@@ -83,7 +83,7 @@ angular.module('webethApp')
           name : file.name,
           size : file.size
         });
-
+        
         console.log('Streaming : ', metadata, socket);
 
         var stream = ss.createStream();

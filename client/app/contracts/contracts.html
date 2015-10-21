@@ -7,18 +7,14 @@
       <h3 id="panel-title" class="panel-title">Upload Contract</h3>
     </div>
     <div class="panel-body">
-      <h4>Upload file</h4>
-      <button type="file" ngf-select="uploadFiles($file, $invalidFiles)" accept="*/*" ngf-max-height="1000" ngf-max-size="1MB" ng-disabled="disableButtons">
-        Select File</button>
-      <br/>
-      <br/>
-      <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
-        <span class="progress" ng-show="f.progress >= 0">
-          <!--<div style="width:{{f.progress}}%"  
-               ng-bind="f.progress + '%'"></div>-->
-          <progressbar class="progress-striped active" value="f.progress">{{f.progress}}%</progressbar>
-        </span>{{errorMsg}}
+      <div style="position:relative;">
+        <a class='btn btn-success' href='javascript:void(0);'>
+			   Choose File...
+			   <input type="file" nv-file-select="" uploader="uploader" class="upload-panel">
+        </a>  &nbsp;
+        <span class='label label-success' ng-show="uploader.queue.length > 0">{{uploader.queue[0].file.name}}</span>
       </div>
+      <progressbar ng-show="uploader.progress > 0" class="progress-striped active" type="success" value="uploader.progress" style="margin-top:10px">{{uploader.progress}}%</progressbar>
     </div>
   </div>
   <span us-spinner spinner-key="contract-spin"></span>
