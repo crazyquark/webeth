@@ -69,6 +69,30 @@ angular.module('webethApp')
       unsyncUpdates: function (modelName) {
         socket.removeAllListeners(modelName + ':save');
         socket.removeAllListeners(modelName + ':remove');
+      },
+      
+      
+      /**
+       * Send a Stream to the server
+       *
+       * @param {file} the file to upload
+       * @param {Object} metadata
+       */
+      send : function(file, metadata) {
+        metadata = angular.extend(metadata || {}, {
+          name : file.name,
+          size : file.size
+        });
+
+        console.log('Streaming : ', metadata, socket);
+
+        var stream = ss.createStream();
+
+        // upload a file to the server.
+        ss(socket).emit('stream', stream, metadata);
+        ss.createBlobReadStream(file).pipe(stream);
+
+        return stream;
       }
     };
   });

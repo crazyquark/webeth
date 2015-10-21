@@ -94,7 +94,7 @@ var EthService = {
 							debug(err);
 							
 							deferred.reject(err);							
-							return;
+							return deferred;
 							// callback fires twice, we only want the second call when the contract is deployed
 						} else if (contract.address) {
 							ContractInstance.createQ({

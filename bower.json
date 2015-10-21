@@ -17,7 +17,8 @@
     "angular-socket-io": "~0.6.0",
     "ng-file-upload": "~9.0.12",
     "sweetalert": "~1.1.0",
-    "angular-spinner": "~0.7.0"
+    "angular-spinner": "~0.7.0",
+    "angular-file-upload": "angular-file-upload-binaryjs#~1.2.0"
   },
   "devDependencies": {
     "angular-mocks": ">=1.2.*",
