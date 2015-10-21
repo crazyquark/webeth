@@ -40,31 +40,18 @@ var EthService = {
 		return accountsData;
 	},
 
-	processContractSource: function (fileData) {
+	processContractSource: function (sourceCode) {
 		// { fieldname: 'file', originalname: 'robots.txt', encoding: '7bit', mimetype: 'text/plain', destination: 'uploads/', 
 		//   filename: 'da96e132f4f5050f7a37658d48b9f4dd', path: 'uploads/da96e132f4f5050f7a37658d48b9f4dd', size: 31 }
-		var contractName = fileData.originalname;
-		var sourceFile = path.normalize(__dirname + '/../../../' + fileData.path);
-
 		var deferred = Q.defer();
-
-		fs.readFile(sourceFile, 'utf8', function (err, data) {
-			if (err) {
-				deferred.reject(err);
-			}
-
-			debug('file: ' + data);
-			var compiled = web3.eth.compile.solidity(data);
-			debug(compiled);
-
-			deferred.resolve(compiled);
-			fs.unlink(sourceFile);
-		});
-
-		debug(contractName);
-		debug(sourceFile);
 		
-		return deferred;
+		debug('file: ' + sourceCode);
+		var compiled = web3.eth.compile.solidity(sourceCode);
+		debug(compiled);
+
+		deferred.resolve(compiled);
+
+		return deferred.promise;
 	},
 
 	createContract: function (contractId, params) {
@@ -74,7 +61,7 @@ var EthService = {
 		}
 
 		var deferred = Q.defer();
-		
+
 		Contract.findOneQ({ _id: mongoose.Types.ObjectId(contractId) }).then(function (contract) {
 			// let's assume that coinbase is our account
 			var acc = web3.eth.coinbase;
@@ -92,9 +79,9 @@ var EthService = {
 					web3.eth.contract(abi).new({ data: code, gas: estimate * 2 }, function (err, contract) {
 						if (err) {
 							debug(err);
-							
-							deferred.reject(err);							
-							return deferred;
+
+							deferred.reject(err);
+							return deferred.promise;
 							// callback fires twice, we only want the second call when the contract is deployed
 						} else if (contract.address) {
 							ContractInstance.createQ({
@@ -114,8 +101,8 @@ var EthService = {
 		}, function (err) {
 			deferred.reject(err);
 		});
-		
-		return deferred;
+
+		return deferred.promise;
 	},
 };
 

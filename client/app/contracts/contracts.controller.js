@@ -5,12 +5,22 @@ angular.module('webethApp')
         if ($scope.contracts) {
             delete $scope.contracts;
         }
+
         listContracts();
-        
+
         $scope.disableButtons = false;
-        
+
         $scope.uploader = uploaderService;
         $scope.uploader.autoUpload = true;
+
+        $scope.uploader.onAfterAddingFile = function (item) {
+            $scope.fileName = item.file.name;
+        };
+
+        socket.socket.on('post:upload_contract', function () {
+            listContracts();
+            $scope.uploader.queue.pop();
+        });
 
         $scope.createContract = function (contractId) {
             usSpinnerService.spin('contract-spin');
