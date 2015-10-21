@@ -8,7 +8,7 @@ var Q = require('q');
 
 // Upload a contract source code
 exports.upload = function (req, res) {
-  EthService.processContractSource(req.file, function (compiledCode) {
+  EthService.processContractSource(req.file).then(function (compiledCode) {
     var contractPromises = [];
     for (var key in compiledCode) {
       try {
@@ -42,6 +42,9 @@ exports.upload = function (req, res) {
     function(err) {
       handleError(res, err);
     });
+  },
+  function(err) {
+    handleError(err, res);
   });
 }
 

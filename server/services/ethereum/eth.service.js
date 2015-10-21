@@ -1,12 +1,16 @@
 'use strict'
 
+var Q = require('q');
+
 var debug = require('debug')('Contracts');
 var mongoose = require('mongoose');
 var path = require('path');
 var fs = require('fs');
 var web3 = require('web3');
+
 var Contract = require('../../api/contract/contract.model');
-var ContractInstance = require('../../api/contractInstance/contractInstance.model');
+var ContractInstance
+			 = require('../../api/contractInstance/contractInstance.model');
 
 function initWeb3() {
 	web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
@@ -24,49 +28,53 @@ function prepareForTransaction(acc, secret) {
 }
 
 var EthService = {
-	listAccounts: function (callback) {
-		callback = callback || function(result) {};
-		
+	listAccounts: function () {
 		var accounts = web3.eth.accounts;
 		var accountsData = [];
 		for (var key in accounts) {
 			var account = accounts[key];
 			var base = web3.eth.coinbase;
-			accountsData.push({address: account, balance: web3.fromWei(web3.eth.getBalance(account), 'ether'), isBase: account === base});
+			accountsData.push({ address: account, balance: web3.fromWei(web3.eth.getBalance(account), 'ether'), isBase: account === base });
 		}
-		
-		callback(accountsData);
+
+		return accountsData;
 	},
-	
-	processContractSource: function (fileData, callback) {
-		//{ fieldname: 'file', originalname: 'robots.txt', encoding: '7bit', mimetype: 'text/plain', destination: 'uploads/', 
-		//filename: 'da96e132f4f5050f7a37658d48b9f4dd', path: 'uploads/da96e132f4f5050f7a37658d48b9f4dd', size: 31 }
+
+	processContractSource: function (fileData) {
+		// { fieldname: 'file', originalname: 'robots.txt', encoding: '7bit', mimetype: 'text/plain', destination: 'uploads/', 
+		//   filename: 'da96e132f4f5050f7a37658d48b9f4dd', path: 'uploads/da96e132f4f5050f7a37658d48b9f4dd', size: 31 }
 		var contractName = fileData.originalname;
 		var sourceFile = path.normalize(__dirname + '/../../../' + fileData.path);
 
+		var deferred = Q.defer();
+
 		fs.readFile(sourceFile, 'utf8', function (err, data) {
-			if (err) throw err;
+			if (err) {
+				deferred.reject(err);
+			}
+
 			debug('file: ' + data);
 			var compiled = web3.eth.compile.solidity(data);
 			debug(compiled);
 
-			if (callback) {
-				callback(compiled);
-			}
-
+			deferred.resolve(compiled);
 			fs.unlink(sourceFile);
 		});
 
 		debug(contractName);
 		debug(sourceFile);
+		
+		return deferred;
 	},
-	
-	createContract: function (contractId, callback, params) {
+
+	createContract: function (contractId, params) {
 
 		if (!params) {
 			params = [];
 		}
 
+		var deferred = Q.defer();
+		
 		Contract.findOneQ({ _id: mongoose.Types.ObjectId(contractId) }).then(function (contract) {
 			// let's assume that coinbase is our account
 			var acc = web3.eth.coinbase;
@@ -83,10 +91,9 @@ var EthService = {
 					var estimate = web3.eth.estimateGas({ from: acc, data: code });
 					web3.eth.contract(abi).new({ data: code, gas: estimate * 2 }, function (err, contract) {
 						if (err) {
-							console.error(err);
-							if (callback) {
-								callback({failure: err.message});
-							}
+							debug(err);
+							
+							deferred.reject(err);							
 							return;
 							// callback fires twice, we only want the second call when the contract is deployed
 						} else if (contract.address) {
@@ -95,22 +102,20 @@ var EthService = {
 								transactionHash: contract.transactionHash,
 								contractId: contractId
 							}).then(function (contractInstance) {
-								if (callback) {
-									callback({success: contractInstance});
-								}
+								deferred.resolve(contractInstance);
 							});
 						}
 					});
 				}
 			} catch (err) {
 				debug(err);
-				if (callback) {
-					callback({failure: err.message});
-				}
+				deferred.reject(err);
 			}
 		}, function (err) {
-			callback({failure: err});
+			deferred.reject(err);
 		});
+		
+		return deferred;
 	},
 };
 

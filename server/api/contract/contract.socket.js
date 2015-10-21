@@ -9,8 +9,11 @@ var EthService = require('../../services/ethereum/eth.service');
 
 exports.register = function(socket) {
   socket.on('create_contract', function(contractId) {
-    EthService.createContract(contractId, function(response) {
+    EthService.createContract(contractId).then(function(response) {
       socket.emit('post:create_contract', response);
+    },
+    function(err) {
+      socket.emit('post:create_contract', err);
     });
   });
   

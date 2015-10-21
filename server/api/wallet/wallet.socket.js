@@ -1,5 +1,5 @@
 /**
- * Broadcast updates to client when the model changes
+ * An Ethereum liason service built for our needs
  */
 
 'use strict';
@@ -8,8 +8,6 @@ var EthService = require('../../services/ethereum/eth.service');
 
 exports.register = function (socket) {
 	socket.on('list_wallets', function () {
-		EthService.listAccounts(function (accounts) {
-			socket.emit('post:list_wallets', accounts);
-		});
+		socket.emit('post:list_wallets', EthService.listAccounts());
 	});
 }
