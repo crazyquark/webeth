@@ -3,7 +3,13 @@
 		<h3>Call method <b>{{methodName}}</b> on <b>instance {{instanceId}}</b></h3>
 	</div>
 	<div class="modal-body">
-		Method does not have parameters. Call it?
+		<span ng-show="!params">Method does not have parameters. Call it?</span>
+		<form ng-show="params">
+			<fieldset class="form-group" ng-repeat="param in params">
+				<label for="formGroupExampleInput">{{param.name}}</label>
+				<input type="text" class="form-control" ng-model="formParam[param.name]" placeholder="{{param.name}} value">
+			</fieldset>
+		</form>
 	</div>
 	<div class="modal-footer">
 		<button class="btn btn-primary" ng-click="cancel()">

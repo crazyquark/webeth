@@ -2,8 +2,8 @@
 
 angular.module('webethApp')
   .controller('InstancesCtrl', function ($scope, $resource, $routeParams, socket, usSpinnerService, $modal) {
-    $scope.message = 'Hello';
-
+    
+          
     var contractId = $routeParams.id;
 
     socket.socket.on('post:list_instances', function (response) {
@@ -20,6 +20,7 @@ angular.module('webethApp')
             var isContructor = abiElement.type === 'constructor';
             var methodObject = {
               name: (abiElement.name ? abiElement.name : response.contractName),
+              params : abiElement.inputs,
               isConstructor: isContructor,
               isConstant: abiElement.constant
             };
@@ -38,8 +39,11 @@ angular.module('webethApp')
 
     socket.socket.emit('list_instances', contractId);
 
-    $scope.callMethodModal = function (instanceId, methodName) {
-
+    $scope.callMethodModal = function (instanceId, method) {
+      
+      var methodName = method.name;
+      var methodParams = method.params;
+      
       $modal.open({
         templateUrl: 'app/instances/callMethod.html',
         backdrop: true,
@@ -48,6 +52,17 @@ angular.module('webethApp')
           $scope.methodName = methodName;
           $scope.instanceId = instanceId;
           
+          if (methodParams.length > 0) {
+            $scope.params = methodParams;
+            
+            $scope.formParam = {};
+
+            for (var paramKey in methodParams) {
+              var param = methodParams[paramKey];
+
+              $scope.formParam[param.name] = '';
+            }
+          }
           $scope.callMethod = function (instanceId, methodName) {
             usSpinnerService.spin('contract-spin');
 
@@ -69,7 +84,9 @@ angular.module('webethApp')
               swal('Oops!', 'Your call returned "' + err + '"', 'error');
             });
 
-            socket.socket.emit('call_method', { instanceId: instanceId, methodName: methodName });
+            var params = $scope.formParam || {};
+            
+            socket.socket.emit('call_method', { instanceId: instanceId, methodName: methodName, params: params });
           };
           
           $scope.cancel = function () {

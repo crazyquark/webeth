@@ -31,7 +31,7 @@
 										</a>
 										<ul class="dropdown-menu" dropdown-menu>
 											<li ng-repeat="method in methods"> 
-												<a ng-click="callMethodModal(instance._id, method.name)"><b><span ng-show="{{method.isConstant}}">Constant</span><span ng-show="{{!method.isConstant}}">Mutable</span></b> {{method.name}}() <b><span ng-show="{{method.isConstructor}}">constructor</span></b></a>
+												<a ng-click="callMethodModal(instance._id, method)"><b><span ng-show="{{method.isConstant}}">Constant</span><span ng-show="{{!method.isConstant}}">Mutable</span></b> {{method.name}}() <b><span ng-show="{{method.isConstructor}}">constructor</span></b></a>
 											</li>
 										</ul>
 									</span>

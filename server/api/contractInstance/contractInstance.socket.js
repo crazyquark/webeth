@@ -28,6 +28,12 @@ exports.register = function (socket) {
 
     var instanceId = params.instanceId;
     var methodName = params.methodName;
+    var callParams = params.params;
+    
+    var callParamsArray = [];
+    for (var param in callParams) {
+      callParamsArray.push(callParams[param]);
+    }
 
     var errorHandle = function (err) {
       socket.emit('error:call_method', err);
@@ -63,13 +69,17 @@ exports.register = function (socket) {
               var contractObj = web3.eth.contract(abiParsed).at(instance.address);
 
               if (foundMethod.isMethodConstant) {
-                var response = contractObj[methodName]();
+                var call = contractObj[methodName];
+                
+                var response = call.apply(contractObj, callParamsArray);
                 socket.emit('post:call_method', {
                   isMethodConstant: foundMethod.isMethodConstant,
                   message: response
                 });
               } else {
-                var txHash = contractObj[methodName].sendTransaction({ from: web3.eth.coinbase });
+                var call = contractObj[methodName].sendTransaction;
+                callParamsArray.push({ from: web3.eth.coinbase });
+                var txHash = call.apply(contractObj, callParamsArray);
                 socket.emit('post:call_method', {
                   isMethodConstant: foundMethod.isMethodConstant,
                   txHash: txHash,
