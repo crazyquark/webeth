@@ -40,42 +40,44 @@ angular.module('webethApp')
 
     $scope.callMethodModal = function (instanceId, methodName) {
 
-        $modal.open({
-            templateUrl: 'callMethod.html',
-            backdrop: true,
-            windowClass: 'modal',
-            controller: function ($scope, $modalInstance) {
-                $scope.submit = function () {
-                    $modalInstance.dismiss('cancel');
-                }
-                $scope.cancel = function () {
-                    $modalInstance.dismiss('cancel');
-                };
-            },
-            resolve: {
-            }
-        });
-    };
+      $modal.open({
+        templateUrl: 'app/instances/callMethod.html',
+        backdrop: true,
+        windowClass: 'modal',
+        controller: function ($scope, $modalInstance) {
+          $scope.methodName = methodName;
+          $scope.instanceId = instanceId;
+          
+          $scope.callMethod = function (instanceId, methodName) {
+            usSpinnerService.spin('contract-spin');
 
-    $scope.callMethod = function (instanceId, methodName) {
-      usSpinnerService.spin('contract-spin');
-      
-      socket.socket.on('post:call_method', function (response) {
-        console.log('done: ' + response);
-        usSpinnerService.stop('contract-spin');
-        if (response.isMethodConstant) {
-          swal('Great!', 'Your call returned "' + response.message + '"', 'success');
-        } else {
-          swal('Great!', 'Contract updated by transaction ' + response.txHash + '!', 'success');
+            socket.socket.on('post:call_method', function (response) {
+              $modalInstance.dismiss('cancel');
+              
+              usSpinnerService.stop('contract-spin');
+              if (response.isMethodConstant) {
+                swal('Great!', 'Your call returned "' + response.message + '"', 'success');
+              } else {
+                swal('Great!', 'Contract updated by transaction ' + response.txHash + '!', 'success');
+              }
+            });
+
+            socket.socket.on('error:call_method', function (err) {
+              $modalInstance.dismiss('cancel');
+              usSpinnerService.stop('contract-spin');
+              console.log('error: ' + err);
+              swal('Oops!', 'Your call returned "' + err + '"', 'error');
+            });
+
+            socket.socket.emit('call_method', { instanceId: instanceId, methodName: methodName });
+          };
+          
+          $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+          };
+        },
+        resolve: {
         }
       });
-
-      socket.socket.on('error:call_method', function (err) {
-        usSpinnerService.stop('contract-spin');
-        console.log('error: ' + err);
-        swal('Oops!', 'Your call returned "' + err + '"', 'error');
-      });
-
-      socket.socket.emit('call_method', { instanceId: instanceId, methodName: methodName });
-    }
+    };
   });
