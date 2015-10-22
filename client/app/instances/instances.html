@@ -8,6 +8,7 @@
 					<h3 id="panel-title" class="panel-title">Contract Instances for <b>"{{contractName}}"</b></h3>
 				</div>
 				<div class="panel-body">
+					<span us-spinner spinner-key="contract-spin"></span>
 					<table class="table table-condensed">
 						<thead>
 							<th>ID</th>
@@ -24,12 +25,13 @@
 								<td>{{instance.timestamp}}</td>
 								<td>
 									<span class="dropdown">
+										
 										<a href="" class="dropdown-toggle clear">
 											Call
 										</a>
 										<ul class="dropdown-menu" dropdown-menu>
 											<li ng-repeat="method in methods"> 
-												<a><b><span ng-show="{{method.isConstant}}">Constant</span><span ng-show="{{!method.isConstant}}">Mutable</span></b> {{method.name}} <b><span ng-show="{{method.isConstructor}}">constructor</span></b></a>
+												<a ng-click="callMethod(instance._id, method.name)"><b><span ng-show="{{method.isConstant}}">Constant</span><span ng-show="{{!method.isConstant}}">Mutable</span></b> {{method.name}}() <b><span ng-show="{{method.isConstructor}}">constructor</span></b></a>
 											</li>
 										</ul>
 									</span>
