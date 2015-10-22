@@ -73,7 +73,7 @@ angular.module('webethApp')
               if (response.isMethodConstant) {
                 swal('Great!', 'Your call returned "' + response.message + '"', 'success');
               } else {
-                swal('Great!', 'Contract updated by transaction ' + response.txHash + '!', 'success');
+                swal('Great!', 'Contract returned "' + response.message + '" and was updated by transaction ' + response.txHash + '!', 'success');
               }
             });
 

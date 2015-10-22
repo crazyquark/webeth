@@ -77,12 +77,16 @@ exports.register = function (socket) {
                   message: response
                 });
               } else {
+                var dryCall = contractObj[methodName];
+                var response = dryCall.call.apply(contractObj, callParamsArray); 
+                
                 var call = contractObj[methodName].sendTransaction;
                 callParamsArray.push({ from: web3.eth.coinbase });
                 var txHash = call.apply(contractObj, callParamsArray);
                 socket.emit('post:call_method', {
                   isMethodConstant: foundMethod.isMethodConstant,
                   txHash: txHash,
+                  message: response
                 });
               }
             } else {
