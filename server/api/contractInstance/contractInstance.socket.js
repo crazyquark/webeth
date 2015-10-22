@@ -28,53 +28,63 @@ exports.register = function (socket) {
 
     var instanceId = params.instanceId;
     var methodName = params.methodName;
-    
-    var errorHandle = function(err) {
+
+    var errorHandle = function (err) {
       socket.emit('error:call_method', err);
     };
+
+    var instancePromise = ContractInstance.findOneQ({ _id: mongoose.Types.ObjectId(instanceId) });
     
-    ContractInstance.findOneQ({ _id: mongoose.Types.ObjectId(instanceId) }).then (function (instance) {
+    instancePromise.then(function (instance) {
       var contractPromise = Contract.findOneQ({ _id: mongoose.Types.ObjectId(instance.contractId) });
-      
-      contractPromise.then(function (contract) {
-        try {
-          var foundMethod = false;
-          var abiParsed = JSON.parse(contract.abi);
-          // search for the method inside the abi
-          for (var key in abiParsed) {
-            var abiElement = abiParsed[key];
-            if (abiElement.type === 'function' && abiElement.name === methodName) {
-              foundMethod = {
-                isMethodConstant: abiElement.constant,
-              };
+
+      var code = web3.eth.getCode(instance.address);
+      if (code == "0x") {
+        errorHandle("This contract commited suicide, you have to move on.");
+        return;
+      } else {
+
+        contractPromise.then(function (contract) {
+          try {
+            var foundMethod = false;
+            var abiParsed = JSON.parse(contract.abi);
+            // search for the method inside the abi
+            for (var key in abiParsed) {
+              var abiElement = abiParsed[key];
+              if (abiElement.type === 'function' && abiElement.name === methodName) {
+                foundMethod = {
+                  isMethodConstant: abiElement.constant,
+                };
+              }
             }
-          }
-          
-          if (foundMethod) {
-            //do web3 operations
-            var contractObj = web3.eth.contract(abiParsed).at(instance.address);
-            
-            if (foundMethod.isMethodConstant) {
-              var response = contractObj[methodName]();
-              socket.emit('post:call_method', {
-                isMethodConstant: foundMethod.isMethodConstant,
-                message: response
-              });
+
+            if (foundMethod) {
+              //do web3 operations
+              var contractObj = web3.eth.contract(abiParsed).at(instance.address);
+
+              if (foundMethod.isMethodConstant) {
+                var response = contractObj[methodName]();
+                socket.emit('post:call_method', {
+                  isMethodConstant: foundMethod.isMethodConstant,
+                  message: response
+                });
+              } else {
+                var txHash = contractObj[methodName].sendTransaction({ from: web3.eth.coinbase });
+                socket.emit('post:call_method', {
+                  isMethodConstant: foundMethod.isMethodConstant,
+                  txHash: txHash,
+                });
+              }
             } else {
-              var txHash = contractObj[methodName].sendTransaction({from:web3.eth.coinbase});
-              socket.emit('post:call_method', {
-                isMethodConstant: foundMethod.isMethodConstant,
-                txHash: txHash,
-              });
+              // method does not exist
+              errorHandle('Method ' + methodName + ' does not exist!');
             }
-          } else {
-            // method does not exist
-            Q.defer().reject(new Error('Method ' + methodName + ' does not exist!'));  
+          } catch (err) {
+            errorHandle(err);
+            return;
           }
-        } catch (err) {
-          Q.defer().reject(new Error(err));
-        }
-      }, errorHandle);
+        }, errorHandle);
+      }
     }, errorHandle);
 
   });

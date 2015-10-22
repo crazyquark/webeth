@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('webethApp')
-  .controller('InstancesCtrl', function ($scope, $resource, $routeParams, socket, usSpinnerService) {
+  .controller('InstancesCtrl', function ($scope, $resource, $routeParams, socket, usSpinnerService, $modal) {
     $scope.message = 'Hello';
 
     var contractId = $routeParams.id;
@@ -16,7 +16,7 @@ angular.module('webethApp')
         for (var key in abiParsed) {
           var abiElement = abiParsed[key];
 
-          if (abiElement.type === 'function' || abiElement.type === 'constructor') {
+          if (abiElement.type === 'function') {
             var isContructor = abiElement.type === 'constructor';
             var methodObject = {
               name: (abiElement.name ? abiElement.name : response.contractName),
@@ -38,6 +38,25 @@ angular.module('webethApp')
 
     socket.socket.emit('list_instances', contractId);
 
+    $scope.callMethodModal = function (instanceId, methodName) {
+
+        $modal.open({
+            templateUrl: 'callMethod.html',
+            backdrop: true,
+            windowClass: 'modal',
+            controller: function ($scope, $modalInstance) {
+                $scope.submit = function () {
+                    $modalInstance.dismiss('cancel');
+                }
+                $scope.cancel = function () {
+                    $modalInstance.dismiss('cancel');
+                };
+            },
+            resolve: {
+            }
+        });
+    };
+
     $scope.callMethod = function (instanceId, methodName) {
       usSpinnerService.spin('contract-spin');
       
@@ -47,7 +66,7 @@ angular.module('webethApp')
         if (response.isMethodConstant) {
           swal('Great!', 'Your call returned "' + response.message + '"', 'success');
         } else {
-          swal('Great!', 'Contract updated by transaction ' + response.txHash + ', your call returned ' + response.message, 'success');
+          swal('Great!', 'Contract updated by transaction ' + response.txHash + '!', 'success');
         }
       });
 
