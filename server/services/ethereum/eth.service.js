@@ -105,7 +105,13 @@ var EthService = {
 		return deferred.promise;
 	},
 
-	callContractMethod: function (instanceId, methodName, callParams) {
+	/**
+	 * Calls a method belonging to an instance with the specified params.
+	 * Does not call constructors!
+	 * Returns a promise. 
+	 */
+	
+	callContractMethodQ: function (instanceId, methodName, callParams) {
 
 		// this returns a promise
 		var deferred = Q.defer();

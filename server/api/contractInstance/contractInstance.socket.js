@@ -31,7 +31,7 @@ exports.register = function (socket) {
     var methodName = params.methodName;
     var callParams = params.params;
      
-    EthService.callContractMethod(instanceId, methodName, callParams).then(function (response) {
+    EthService.callContractMethodQ(instanceId, methodName, callParams).then(function (response) {
       socket.emit('post:call_method', response);
     }, function (err) {
       socket.emit('error:call_method', err);
