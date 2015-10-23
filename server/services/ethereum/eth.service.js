@@ -44,7 +44,7 @@ var EthService = {
 		// { fieldname: 'file', originalname: 'robots.txt', encoding: '7bit', mimetype: 'text/plain', destination: 'uploads/', 
 		//   filename: 'da96e132f4f5050f7a37658d48b9f4dd', path: 'uploads/da96e132f4f5050f7a37658d48b9f4dd', size: 31 }
 		var deferred = Q.defer();
-		
+
 		debug('file: ' + sourceCode);
 		var compiled = web3.eth.compile.solidity(sourceCode);
 		debug(compiled);
@@ -104,6 +104,125 @@ var EthService = {
 
 		return deferred.promise;
 	},
+
+	callContractMethod: function (instanceId, methodName, callParams) {
+
+		// this returns a promise
+		var deferred = Q.defer();
+
+		// reject function
+		var errorHandle = function (err) {
+			deferred.reject(err);
+		};
+
+		// process params in a way we can handle them
+		var callParamsArray = [];
+		for (var param in callParams) {
+			callParamsArray.push(callParams[param]);
+		}
+
+		var instancePromise = ContractInstance.findOneQ({ _id: mongoose.Types.ObjectId(instanceId) });
+
+		// promise we get the instance from the db first
+		instancePromise.then(function (instance) {
+			
+			// promise for the contract abi, to use later
+			var contractPromise = Contract.findOneQ({ _id: mongoose.Types.ObjectId(instance.contractId) });
+
+			// async get the instance status from the blockchain via geth
+			web3.eth.getCode(instance.address, function (web3Error, code) {
+				if (!web3Error) { // if geth is online
+					if (code == "0x") {
+						// this instance commited suicide
+						errorHandle("This contract commited suicide, you have to move on.");
+						return;
+					} else {
+						//promise we get the contract abi from the db first
+						contractPromise.then(function (contract) {
+							try {
+								var foundMethod = false;
+								var abiParsed = JSON.parse(contract.abi);
+								// search for the method inside the abi
+								for (var key in abiParsed) {
+									var abiElement = abiParsed[key];
+									if (abiElement.type === 'function' && abiElement.name === methodName) {
+										foundMethod = {
+											isMethodConstant: abiElement.constant,
+										};
+									}
+								}
+
+								if (foundMethod) {
+									//do web3 operations
+									
+									// get the contract obj async
+									web3.eth.contract(abiParsed).at(instance.address, function (web3Error, contractObj) {
+
+										if (!web3Error) {
+											if (foundMethod.isMethodConstant) { // if method is constant, we just call it directly
+												var call = contractObj[methodName];
+
+												callParamsArray.push(function (web3Error, response) {
+													deferred.resolve({
+														isMethodConstant: true,
+														message: response
+													});
+												});
+												call.apply(contractObj, callParamsArray);
+											} else {
+												// if method is not constant we do a dry call for the return value and 
+												// a transaction to call the method on the blockchain
+												var dryCall = contractObj[methodName];
+
+												var dryCallParams = callParamsArray.slice(0); //clone
+												dryCallParams.push(function (web3Error, dryCallResponse) {
+													// this executes after dry call arrives
+													if (!web3Error) {
+														var call = contractObj[methodName].sendTransaction;
+														callParamsArray.push({ from: web3.eth.coinbase });
+														callParamsArray.push(function (web3Error, txHashResponse) {
+															// this executes after the final call is received
+													
+															if (!web3Error) {
+																deferred.resolve({
+																	isMethodConstant: false,
+																	txHash: txHashResponse,
+																	message: dryCallResponse
+																});
+															} else {
+																errorHandle(web3Error);
+															}
+														});
+														// get the final call async
+														call.apply(contractObj, callParamsArray);
+													} else {
+														errorHandle(web3Error);
+													}
+												});
+												//get the dry call async
+												dryCall.call.apply(contractObj, dryCallParams);
+											}
+										} else {
+											errorHandle(web3Error);
+										}
+									});
+								} else {
+									// method does not exist
+									errorHandle('Method ' + methodName + ' does not exist!');
+								}
+							} catch (err) {
+								errorHandle(err);
+							}
+						}, errorHandle);
+					}
+				} else {
+					errorHandle(web3Error);
+				}
+			});
+		}, errorHandle);
+
+		return deferred.promise;
+	}
 };
 
 initWeb3();

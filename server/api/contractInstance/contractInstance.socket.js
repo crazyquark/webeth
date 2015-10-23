@@ -4,6 +4,7 @@
 
 'use strict';
 
+var EthService = require('../../services/ethereum/eth.service');
 var ContractInstance = require('./contractInstance.model');
 var Contract = require('../contract/contract.model');
 var mongoose = require('mongoose');
@@ -29,77 +30,11 @@ exports.register = function (socket) {
     var instanceId = params.instanceId;
     var methodName = params.methodName;
     var callParams = params.params;
-    
-    var callParamsArray = [];
-    for (var param in callParams) {
-      callParamsArray.push(callParams[param]);
-    }
-
-    var errorHandle = function (err) {
+     
+    EthService.callContractMethod(instanceId, methodName, callParams).then(function (response) {
+      socket.emit('post:call_method', response);
+    }, function (err) {
       socket.emit('error:call_method', err);
-    };
-
-    var instancePromise = ContractInstance.findOneQ({ _id: mongoose.Types.ObjectId(instanceId) });
-    
-    instancePromise.then(function (instance) {
-      var contractPromise = Contract.findOneQ({ _id: mongoose.Types.ObjectId(instance.contractId) });
-
-      var code = web3.eth.getCode(instance.address);
-      if (code == "0x") {
-        errorHandle("This contract commited suicide, you have to move on.");
-        return;
-      } else {
-
-        contractPromise.then(function (contract) {
-          try {
-            var foundMethod = false;
-            var abiParsed = JSON.parse(contract.abi);
-            // search for the method inside the abi
-            for (var key in abiParsed) {
-              var abiElement = abiParsed[key];
-              if (abiElement.type === 'function' && abiElement.name === methodName) {
-                foundMethod = {
-                  isMethodConstant: abiElement.constant,
-                };
-              }
-            }
-
-            if (foundMethod) {
-              //do web3 operations
-              var contractObj = web3.eth.contract(abiParsed).at(instance.address);
-
-              if (foundMethod.isMethodConstant) {
-                var call = contractObj[methodName];
-                
-                var response = call.apply(contractObj, callParamsArray);
-                socket.emit('post:call_method', {
-                  isMethodConstant: foundMethod.isMethodConstant,
-                  message: response
-                });
-              } else {
-                var dryCall = contractObj[methodName];
-                var response = dryCall.call.apply(contractObj, callParamsArray); 
-                
-                var call = contractObj[methodName].sendTransaction;
-                callParamsArray.push({ from: web3.eth.coinbase });
-                var txHash = call.apply(contractObj, callParamsArray);
-                socket.emit('post:call_method', {
-                  isMethodConstant: foundMethod.isMethodConstant,
-                  txHash: txHash,
-                  message: response
-                });
-              }
-            } else {
-              // method does not exist
-              errorHandle('Method ' + methodName + ' does not exist!');
-            }
-          } catch (err) {
-            errorHandle(err);
-            return;
-          }
-        }, errorHandle);
-      }
-    }, errorHandle);
-
+    });
   });
 }
