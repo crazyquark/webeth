@@ -26,13 +26,13 @@ angular.module('webethApp')
             usSpinnerService.spin('contract-spin');
             $scope.disableButtons = true;
             socket.socket.on('post:create_contract', function (data) {
-                swal("Great!", "Your contract is on the blockchain at address: " + data.address + "!", "success");
+                swal('Great!', 'Your contract was submitted thorugh transaction "' + data.transactionHash + '"!', 'success');
                 usSpinnerService.stop('contract-spin');
                 $scope.disableButtons = false;
             });
             
             socket.socket.on('error:create_contract', function (err) {
-                swal("Ooops!", "Something went wrong: " + err + "!", "error");
+                swal('Ooops!', 'Something went wrong: ' + err + '!', 'error');
                 usSpinnerService.stop('contract-spin');
                 $scope.disableButtons = false;
             });

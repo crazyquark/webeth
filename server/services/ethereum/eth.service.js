@@ -16,15 +16,61 @@ function initWeb3() {
 	web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
 }
 
-function prepareForTransaction(acc, secret) {
+/**
+ * Prepares for an account needed operation (mostly transactions), unlocks acc with secret.
+ * Optional, provide callback for async call. (web3 like).
+ */
+function prepareForTransaction(acc, secret, callback) {
 	secret = secret || 'secret';
+	var threads = 1;
 
-	var unlock = web3.personal.unlockAccount(acc, 'secret');
-	if (!web3.eth.mining) {
-		web3.miner.start(1);
+	if (!callback) {
+		if (acc === 'base') {
+			acc = web3.eth.coinbase;
+		}
+		
+		// sync implementation
+		var unlock = web3.personal.unlockAccount(acc, secret);
+		if (!web3.eth.mining) {
+			web3.miner.start(threads);
+		}
+
+		return unlock;
+	} else {
+		var asyncUnlock = function (web3Error, acc) {
+			if (!web3Error) {
+				// async unlock account
+				web3.personal.unlockAccount(acc, secret, function (web3Error, unlock) {
+					if (!web3Error && unlock) { // if unlock was a success
+						// then async check mining
+						web3.eth.getMining(function (web3Error, mining) {
+							if (!web3Error) {
+								if (!mining) {
+									// if not mining, async start the miners
+									web3.miner.start(threads, callback);
+								} else {
+									// miners already running, just callback
+									callback(false, true);
+								}
+							} else {
+								callback(web3Error, false);
+							}
+						});
+					} else {
+						callback(web3Error, false);
+					}
+				});
+			} else {
+				callback(web3Error, false);
+			}
+		}
+
+		if (acc === 'base') {
+			web3.eth.getCoinbase(asyncUnlock);
+		} else {
+			asyncUnlock(false, acc);
+		}
 	}
-
-	return unlock;
 }
 
 var EthService = {
@@ -54,7 +100,7 @@ var EthService = {
 		return deferred.promise;
 	},
 
-	createContract: function (contractId, params) {
+	createContractQ: function (contractId, params) {
 
 		if (!params) {
 			params = [];
@@ -84,10 +130,20 @@ var EthService = {
 							return deferred.promise;
 							// callback fires twice, we only want the second call when the contract is deployed
 						} else if (contract.address) {
-							ContractInstance.createQ({
-								address: contract.address,
+							// contract is now mined
+							ContractInstance.updateQ({
 								transactionHash: contract.transactionHash,
-								contractId: contractId
+							}, {
+								mined: true, 
+								address: contract.address
+							}).done();
+						} else {
+							
+							// contract submitted, but not mined
+							ContractInstance.createQ({
+								transactionHash: contract.transactionHash,
+								contractId: contractId,
+								mined: false
 							}).then(function (contractInstance) {
 								deferred.resolve(contractInstance);
 							});
@@ -110,7 +166,7 @@ var EthService = {
 	 * Does not call constructors!
 	 * Returns a promise. 
 	 */
-	
+
 	callContractMethodQ: function (instanceId, methodName, callParams) {
 
 		// this returns a promise
@@ -161,55 +217,65 @@ var EthService = {
 								if (foundMethod) {
 									//do web3 operations
 									
-									// get the contract obj async
-									web3.eth.contract(abiParsed).at(instance.address, function (web3Error, contractObj) {
+									//unlock account first
+									prepareForTransaction('base', false, function (web3Error, unlock) {
 
-										if (!web3Error) {
-											if (foundMethod.isMethodConstant) { // if method is constant, we just call it directly
-												var call = contractObj[methodName];
+										if (!web3Error && unlock) {
+											// get the contract obj async
+											web3.eth.contract(abiParsed).at(instance.address, function (web3Error, contractObj) {
 
-												callParamsArray.push(function (web3Error, response) {
-													deferred.resolve({
-														isMethodConstant: true,
-														message: response
-													});
-												});
-												call.apply(contractObj, callParamsArray);
-											} else {
-												// if method is not constant we do a dry call for the return value and 
-												// a transaction to call the method on the blockchain
-												var dryCall = contractObj[methodName];
+												if (!web3Error) {
+													if (foundMethod.isMethodConstant) { // if method is constant, we just call it directly
+														var call = contractObj[methodName];
 
-												var dryCallParams = callParamsArray.slice(0); //clone
-												dryCallParams.push(function (web3Error, dryCallResponse) {
-													// this executes after dry call arrives
-													if (!web3Error) {
-														var call = contractObj[methodName].sendTransaction;
-														callParamsArray.push({ from: web3.eth.coinbase });
-														callParamsArray.push(function (web3Error, txHashResponse) {
-															// this executes after the final call is received
-													
+														callParamsArray.push(function (web3Error, response) {
+															deferred.resolve({
+																isMethodConstant: true,
+																message: response
+															});
+														});
+														call.apply(contractObj, callParamsArray);
+													} else {
+														// if method is not constant we do a dry call for the return value and 
+														// a transaction to call the method on the blockchain
+														var dryCall = contractObj[methodName];
+
+														var dryCallParams = callParamsArray.slice(0); //clone
+														dryCallParams.push(function (web3Error, dryCallResponse) {
+															// this executes after dry call arrives
 															if (!web3Error) {
-																deferred.resolve({
-																	isMethodConstant: false,
-																	txHash: txHashResponse,
-																	message: dryCallResponse
+																var call = contractObj[methodName].sendTransaction;
+																callParamsArray.push({ from: web3.eth.coinbase });
+																callParamsArray.push(function (web3Error, txHashResponse) {
+																	// this executes after the final call is received
+													
+																	if (!web3Error) {
+																		deferred.resolve({
+																			isMethodConstant: false,
+																			txHash: txHashResponse,
+																			message: dryCallResponse
+																		});
+																	} else {
+																		errorHandle(web3Error);
+																	}
 																});
+																// get the final call async
+																call.apply(contractObj, callParamsArray);
 															} else {
 																errorHandle(web3Error);
 															}
 														});
-														// get the final call async
-														call.apply(contractObj, callParamsArray);
-													} else {
-														errorHandle(web3Error);
+														//get the dry call async
+														dryCall.call.apply(contractObj, dryCallParams);
 													}
-												});
-												//get the dry call async
-												dryCall.call.apply(contractObj, dryCallParams);
-											}
-										} else {
+												} else {
+													errorHandle(web3Error);
+												}
+											});
+										} else if (web3Error) {
 											errorHandle(web3Error);
+										} else {
+											errorHandle('Can\'t unlock account');
 										}
 									});
 								} else {

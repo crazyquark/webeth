@@ -6,7 +6,7 @@
 		<span ng-show="!params">Method does not have parameters. Call it?</span>
 		<form ng-show="params">
 			<fieldset class="form-group" ng-repeat="param in params">
-				<label for="formGroupExampleInput">{{param.name}}</label>
+				<label for="formGroupExampleInput"><b>{{param.name}}</b> ({{param.type}})</label>
 				<input type="text" class="form-control" ng-model="formParam[param.name]" placeholder="{{param.name}} value">
 			</fieldset>
 		</form>

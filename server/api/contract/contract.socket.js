@@ -14,7 +14,7 @@ var debug = require('debug')('Contracts');
 
 exports.register = function (socket) {
   socket.on('create_contract', function (contractId) {
-    EthService.createContract(contractId).then(function (response) {
+    EthService.createContractQ(contractId).then(function (response) {
       socket.emit('post:create_contract', response);
     },
       function (err) {
